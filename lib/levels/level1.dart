@@ -10,6 +10,7 @@ import 'package:rive_game_flutter/levels/level.dart';
 import 'package:rive_game_flutter/gameobjects/meteor.dart';
 import 'package:rive_game_flutter/gameobjects/player.dart';
 import 'package:rive_game_flutter/gameobjects/vitals.dart';
+import 'package:rive_game_flutter/levels/level1_bg.dart';
 
 class Level1 extends Level {
   late Player _player;
@@ -21,6 +22,8 @@ class Level1 extends Level {
   late Artboard _scoreArtboard;
   late Artboard _stageArtboard;
   late Artboard _explosionArtboard;
+  late Artboard _bgArtboard;
+  late Level1Bg _bg;
 
   late Vitals _vitals;
   late Stage _stage;
@@ -53,8 +56,13 @@ class Level1 extends Level {
     _explosionArtboard =
         await loadArtboard(_file, artboardName: 'meteor explosion');
     _stageArtboard = await loadArtboard(_file, artboardName: 'stage');
+    _bgArtboard = await loadArtboard(_file, artboardName: 'level1 bg');
+    _bgArtboard.frameOrigin = false;
 
-    _player = Player(playerArtboard, this);
+    _bg = Level1Bg(_bgArtboard);
+    gameRef.camera.backdrop = _bg;
+
+    _player = Player(playerArtboard, this, moveBg);
     add(_player);
 
     _vitals = Vitals(_vitalsArtboard);
@@ -171,6 +179,8 @@ class Level1 extends Level {
     _spawnMeteorTimer.reset();
     _score.reset();
     _fps.position = Vector2(gameRef.size.x - 30, 30);
+    _stage.position = Vector2(gameRef.size.x / 2, 100);
+    _score.position = Vector2(gameRef.size.x / 2, 40);
     _scoreValue = 0;
     _destroyedMeteors = 0;
     _difficultyLevel = 1;
@@ -188,6 +198,7 @@ class Level1 extends Level {
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
+
     if (_canReset) {
       reset();
     }
@@ -205,5 +216,15 @@ class Level1 extends Level {
     _spawnMeteorTimer = Timer(_maxTime - _difficultyLevel * 0.2);
     _spawnMeteorTimer.start();
     _stage.updateStage(_difficultyLevel);
+  }
+
+  void moveBg(Vector2 position) {
+    final centerX = gameRef.size.x / 2;
+    final centerY = gameRef.size.y / 2;
+
+    final x = ((position.x - centerX) / centerX) * 100;
+    final y = ((position.y - centerY) / centerY) * 100;
+
+    _bg.move(x, y);
   }
 }

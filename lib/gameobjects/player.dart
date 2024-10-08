@@ -12,6 +12,8 @@ import 'package:rive_game_flutter/gameobjects/meteor.dart';
 const moveSpeed = 300.0;
 const rotationSpeed = 2;
 
+typedef MoveCallback = void Function(Vector2 position);
+
 class Player extends RiveComponent
     with HasGameRef<SpaceshooterGame>, KeyboardHandler, CollisionCallbacks {
   Vector2 _direction = Vector2.zero();
@@ -24,8 +26,10 @@ class Player extends RiveComponent
   late Timer _shootCooldownTimer;
   double _middleBulletSpawnDistance = 0.0;
   Level world;
+  MoveCallback? moveCallback;
 
-  Player(Artboard artboard, this.world) : super(artboard: artboard);
+  Player(Artboard artboard, this.world, this.moveCallback)
+      : super(artboard: artboard);
 
   @override
   FutureOr<void> onLoad() {
@@ -66,7 +70,7 @@ class Player extends RiveComponent
       _turnDirection = 0;
     }
 
-    return super.onKeyEvent(event, keysPressed);
+    return false;
   }
 
   @override
@@ -76,6 +80,8 @@ class Player extends RiveComponent
 
     _shootCooldownTimer.update(dt);
     shoot();
+
+    moveCallback?.call(position);
 
     super.update(dt);
   }

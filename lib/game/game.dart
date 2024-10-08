@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
@@ -24,10 +23,5 @@ class SpaceshooterGame extends FlameGame
     camera.viewfinder.anchor = Anchor.topLeft;
 
     return super.onLoad();
-  }
-
-  @override
-  Color backgroundColor() {
-    return const Color(0xff230038);
   }
 }
